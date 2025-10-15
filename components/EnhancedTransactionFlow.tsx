@@ -240,7 +240,7 @@ export default function EnhancedTransactionFlow({ transaction }: Props) {
                             {program}
                           </span>
                         ))}
-                        {step.accounts?.slice(0, 3).map((account: any, accountIndex) => {
+                        {step.accounts?.slice(0, 3).map((account: any, accountIndex: number) => {
                           const accountStr = typeof account === 'string' ? account : (account?.toString() || 'Unknown');
                           return (
                             <span key={accountIndex} className="px-3 py-1 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300 rounded-full text-xs font-mono">
