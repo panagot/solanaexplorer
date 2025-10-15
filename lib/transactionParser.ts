@@ -244,8 +244,7 @@ function determineTransactionType(
   
   // Check for token burns first (very important in Solana)
   const burnInstructions = instructions.filter(ix => 
-    (ix.description && ix.description.toLowerCase().includes('burn')) ||
-    (ix.instruction && ix.instruction.toLowerCase().includes('burn'))
+    (ix.description && ix.description.toLowerCase().includes('burn'))
   );
   if (burnInstructions.length > 0) {
     return 'burn';

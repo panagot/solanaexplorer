@@ -245,7 +245,6 @@ export const POPULAR_TOKENS: Record<string, { symbol: string; name: string; deci
   'DezXAZ8z7PnrnRJjz3wXBoRgixCa6xjnB7YaB1pPB263': { symbol: 'BONK', name: 'Bonk', decimals: 5 },
   
   // Popular Meme Tokens
-  'EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v': { symbol: 'MEXC', name: 'MEXC Token', decimals: 6 },
   
   // DeFi Tokens
   'HBB111SCpVgz9UpbqjqR3LCiFzWqFjQ3iBzVVdYd3YmU': { symbol: 'HBB', name: 'Hubble Protocol', decimals: 6 },
