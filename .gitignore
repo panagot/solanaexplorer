@@ -77,3 +77,8 @@ jspm_packages/
 
 # DynamoDB Local files
 .dynamodb/
+
+# Grant applications and sensitive documents
+solanagrant.md
+grant-*.md
+*.grant.md
