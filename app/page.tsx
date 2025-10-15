@@ -8,6 +8,8 @@ import type { SolanaTransactionExplanation } from '@/types/transaction';
 import EnhancedTransactionFlow from '@/components/EnhancedTransactionFlow';
 import MEVAnalysis from '@/components/MEVAnalysis';
 import EnhancedUserFriendlyExplanation from '@/components/EnhancedUserFriendlyExplanation';
+import BalanceChanges from '@/components/BalanceChanges';
+import EducationalContent from '@/components/EducationalContent';
 
 export default function Home() {
   const [signature, setSignature] = useState('');
@@ -719,6 +721,15 @@ export default function Home() {
             {/* MEV Analysis */}
             <MEVAnalysis transaction={transaction} />
 
+            {/* Balance Changes */}
+            {transaction.balanceChanges && transaction.balanceChanges.length > 0 && (
+              <BalanceChanges balanceChanges={transaction.balanceChanges} />
+            )}
+
+            {/* Educational Content */}
+            {transaction.educationalContent && transaction.educationalContent.length > 0 && (
+              <EducationalContent educationalContent={transaction.educationalContent} />
+            )}
 
             {/* Error Information */}
             {transaction.error && (

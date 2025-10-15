@@ -32,6 +32,12 @@ export function parseSolanaTransaction(tx: ParsedTransactionWithMeta): SolanaTra
   // Generate error message if failed
   const error = success ? undefined : JSON.stringify(tx.meta?.err);
 
+  // Parse balance changes
+  const balanceChanges = parseBalanceChanges(tx);
+  
+  // Generate educational content
+  const educationalContent = generateEducationalContent(transactionType, instructions, tokenTransfers, balanceChanges);
+
   return {
     signature,
     success,
@@ -46,7 +52,9 @@ export function parseSolanaTransaction(tx: ParsedTransactionWithMeta): SolanaTra
     tokenTransfers,
     programCalls,
     transactionType,
-    error
+    error,
+    balanceChanges,
+    educationalContent
   };
 }
 
@@ -581,4 +589,114 @@ export function generateActions(
   });
 
   return Array.from(actionMap.values());
+}
+
+function parseBalanceChanges(tx: ParsedTransactionWithMeta): any[] {
+  const balanceChanges: any[] = [];
+  
+  if (tx.meta?.preBalances && tx.meta?.postBalances && tx.transaction.message.accountKeys) {
+    tx.transaction.message.accountKeys.forEach((account, index) => {
+      const preBalance = tx.meta!.preBalances[index];
+      const postBalance = tx.meta!.postBalances[index];
+      const change = postBalance - preBalance;
+      
+      if (change !== 0) {
+        const changeSOL = change / 1e9; // Convert lamports to SOL
+        balanceChanges.push({
+          account: account.toString(),
+          preBalance: preBalance / 1e9,
+          postBalance: postBalance / 1e9,
+          change: changeSOL,
+          changeType: change > 0 ? 'increase' : 'decrease',
+          usdValue: calculateUSDValue('SOL', Math.abs(changeSOL))
+        });
+      }
+    });
+  }
+  
+  return balanceChanges;
+}
+
+function calculateUSDValue(tokenType: string, amount: number): string {
+  // Mock USD prices for popular Solana tokens (in a real app, you'd fetch from an API)
+  const prices: { [key: string]: number } = {
+    'SOL': 200.00,
+    'USDC': 1.00,
+    'USDT': 1.00,
+    'RAY': 2.50,
+    'SRM': 0.15,
+    'ORCA': 3.20,
+    'JUP': 0.80,
+    'BONK': 0.00002,
+    'WIF': 2.80,
+    'POPCAT': 0.25,
+    'BOME': 0.0001,
+    'PEPE': 0.000001,
+    'DOGE': 0.08,
+    'SHIB': 0.00001,
+  };
+
+  const price = prices[tokenType] || 0;
+  const usdValue = amount * price;
+  
+  if (usdValue < 0.01) {
+    return '< $0.01';
+  } else if (usdValue < 1) {
+    return `$${usdValue.toFixed(3)}`;
+  } else if (usdValue < 1000) {
+    return `$${usdValue.toFixed(2)}`;
+  } else {
+    return `$${(usdValue / 1000).toFixed(2)}K`;
+  }
+}
+
+function generateEducationalContent(transactionType: TransactionType, instructions: Instruction[], tokenTransfers: TokenTransfer[], balanceChanges: any[]): string[] {
+  const content: string[] = [];
+
+  // Protocol-specific educational content
+  switch (transactionType) {
+    case 'SWAP':
+      content.push("💡 Token swaps on Solana are executed through decentralized exchanges (DEXs) like Jupiter, Raydium, or Orca. These platforms use automated market makers (AMMs) to provide liquidity and determine exchange rates.");
+      break;
+    case 'TRANSFER':
+      content.push("💡 Solana transfers are extremely fast and cheap, typically completing in under 1 second and costing less than $0.01. This makes Solana ideal for micro-transactions and high-frequency trading.");
+      break;
+    case 'STAKE':
+      content.push("💡 Staking on Solana helps secure the network while earning rewards. Validators process transactions and maintain the blockchain, and stakers receive a portion of the rewards for delegating their SOL.");
+      break;
+    case 'NFT':
+      content.push("💡 NFTs on Solana are stored as Metaplex tokens, making them more efficient and cheaper to mint compared to other blockchains. The Metaplex standard is the most widely used NFT standard on Solana.");
+      break;
+    case 'DEFI':
+      content.push("💡 Solana's DeFi ecosystem includes lending protocols like Solend, DEXs like Raydium and Orca, and yield farming opportunities. The high throughput and low fees make it attractive for DeFi activities.");
+      break;
+  }
+
+  // Balance change educational content
+  if (balanceChanges.length > 0) {
+    const totalValue = balanceChanges.reduce((sum, change) => {
+      const usdValue = parseFloat(change.usdValue.replace(/[$,K]/g, '')) || 0;
+      return sum + (change.changeType === 'increase' ? usdValue : -usdValue);
+    }, 0);
+
+    if (totalValue > 0) {
+      content.push("💰 Your portfolio value increased from this transaction. This could be from trading profits, staking rewards, or receiving tokens.");
+    } else if (totalValue < 0) {
+      content.push("📉 Your portfolio value decreased from this transaction. This is normal for trades, fees, or when sending tokens to others.");
+    }
+  }
+
+  // Solana-specific educational content
+  if (instructions.some(ix => ix.programId === 'ComputeBudget111111111111111111111111111111')) {
+    content.push("⚡ Solana's compute budget system allows you to set priority fees for faster transaction processing. Higher fees increase the chance of your transaction being included in the next block.");
+  }
+
+  if (tokenTransfers.length > 0) {
+    content.push("🔄 Token transfers on Solana use the SPL Token standard, which is similar to ERC-20 on Ethereum but more efficient. Each token has its own mint address and can be transferred between accounts.");
+  }
+
+  // Gas efficiency education
+  content.push("⚡ Solana's unique architecture allows for extremely low transaction fees (often less than $0.01) and fast confirmation times (under 1 second), making it one of the most efficient blockchains for transactions.");
+
+  return content;
 }

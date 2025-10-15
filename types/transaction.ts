@@ -25,6 +25,21 @@ export interface SolanaTransactionExplanation {
   
   // Error information
   error?: string;
+  
+  // Balance changes
+  balanceChanges?: BalanceChange[];
+  
+  // Educational content
+  educationalContent?: string[];
+}
+
+export interface BalanceChange {
+  account: string;
+  preBalance: number;
+  postBalance: number;
+  change: number;
+  changeType: 'increase' | 'decrease';
+  usdValue: string;
 }
 
 export interface AccountChange {
@@ -77,6 +92,11 @@ export type TransactionType =
   | 'nft_transfer'
   | 'program_deploy'
   | 'burn'
+  | 'SWAP'
+  | 'TRANSFER'
+  | 'STAKE'
+  | 'NFT'
+  | 'DEFI'
   | 'unknown';
 
 export interface Action {
