@@ -70,8 +70,8 @@ export default function EnhancedTransactionFlow({ transaction }: Props) {
         status: transaction.success ? 'completed' : 'failed',
         details: programInstructions.map(ix => ix.description),
         programs: [programName],
-        accounts: programInstructions.flatMap(ix => ix.accounts).map(account => 
-          typeof account === 'string' ? account : account?.toString() || 'Unknown'
+        accounts: programInstructions.flatMap(ix => ix.accounts).map((account: any) => 
+          typeof account === 'string' ? account : (account?.toString() || 'Unknown')
         )
       });
     });
